@@ -1,0 +1,6 @@
+MX6ULLATK BOARD
+M:	xine <xinedev@outlook.com>
+S:	Maintained
+F:	board/freescale/mx6ullatk/
+F:	include/configs/mx6ullatk.h
+F:	configs/mx6ull_atk_alpha_defconfig
