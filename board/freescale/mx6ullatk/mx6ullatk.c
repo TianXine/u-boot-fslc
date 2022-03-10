@@ -28,6 +28,10 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\
 	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
+#define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
+	PAD_CTL_PUS_22K_UP  | PAD_CTL_SPEED_LOW |		\
+	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
@@ -43,6 +47,40 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 static void setup_iomux_uart(void)
 {
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
+}
+
+static struct fsl_esdhc_cfg usdhc_cfg[2] = {
+	{USDHC1_BASE_ADDR, 0, 4},
+	{USDHC2_BASE_ADDR, 0, 8},
+};
+
+/**
+ * @brief sd2 reworked to support emmc.
+ * */
+static iomux_v3_cfg_t const usdhc2_emmc_pads[] = {
+	MX6_PAD_NAND_RE_B__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_WE_B__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA00__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA01__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA02__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA03__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA04__USDHC2_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA05__USDHC2_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA06__USDHC2_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_DATA07__USDHC2_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+
+	/* RST_B*/
+	MX6_PAD_NAND_ALE__GPIO4_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+int board_mmc_init(bd_t* bis)
+{
+	imx_iomux_v3_setup_multiple_pads(usdhc2_emmc_pads, ARRAY_SIZE(usdhc2_emmc_pads));
+	gpio_direction_output(USDHC2_PWR_GPIO, 0);
+	udelay(500);
+	gpio_direction_output(USDHC2_PWR_GPIO, 1);
+	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
 }
 
 int board_mmc_get_env_dev(int devno)
@@ -133,11 +171,8 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (is_cpu_type(MXC_CPU_MX6ULZ))
-		env_set("board_name", "ULZ-EVK");
-	else
-		env_set("board_name", "EVK");
-	env_set("board_rev", "14X14");
+	env_set("board_name", "MINI");
+	env_set("board_rev", "V1.7");
 #endif
 
 	return 0;
@@ -145,10 +180,6 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	if (is_cpu_type(MXC_CPU_MX6ULZ))
-		puts("Board: MX6ULZ 14x14 EVK\n");
-	else
-		puts("Board: MX6ULL 14x14 EVK\n");
-
+	puts("Board: MX6ULL ATK MINI\n");
 	return 0;
 }
