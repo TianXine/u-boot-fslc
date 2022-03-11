@@ -69,16 +69,14 @@ static iomux_v3_cfg_t const usdhc2_emmc_pads[] = {
 	MX6_PAD_NAND_DATA06__USDHC2_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_NAND_DATA07__USDHC2_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 
+	MX6_PAD_NAND_ALE__USDHC2_RESET_B  | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	/* RST_B*/
-	MX6_PAD_NAND_ALE__GPIO4_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	//MX6_PAD_NAND_ALE__GPIO4_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-int board_mmc_init(bd_t* bis)
+int board_mmc_init(struct bd_info* bis)
 {
 	imx_iomux_v3_setup_multiple_pads(usdhc2_emmc_pads, ARRAY_SIZE(usdhc2_emmc_pads));
-	gpio_direction_output(USDHC2_PWR_GPIO, 0);
-	udelay(500);
-	gpio_direction_output(USDHC2_PWR_GPIO, 1);
 	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
 }
