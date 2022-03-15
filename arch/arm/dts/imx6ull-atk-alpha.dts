@@ -8,7 +8,7 @@
 #include "imx6ul-14x14-evk.dtsi"
 
 / {
-	model = "Alientek Alpha Board";
+	model = "Alientek Alpha|Mini Board";
 	compatible = "fsl,imx6ull-atk-alpha", "fsl,imx6ull";
 };
 
@@ -16,17 +16,13 @@
 	assigned-clocks = <&clks IMX6UL_CLK_PLL3_PFD2>;
 	assigned-clock-rates = <320000000>;
 };
+
 &usdhc2{
-		   /* drivers/mmc/fsl_esdhc_imx.c fsl_esdhc_ids */
-		   compatible="fsl,esdhc";
-		   bus-width=<8>;
-		   non_removable;
-		   status="okay";
-		   /*
-		 aliases {
-			 mmc0 = &usdhc1;
-			 mmc1 = &usdhc2;
-		 };
-		 */
+	/*keep-power-in-suspend;*/
+	/* drivers/mmc/fsl_esdhc_imx.c fsl_esdhc_ids */
+	/* compatible="fsl,imx6ul-usdhc"; */
+	bus-width=<8>;
+	non_removable;
+	status="okay";
 };
 
